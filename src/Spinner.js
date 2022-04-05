@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 const COLORS = ["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#b15928"];
 
 class Spinner extends React.Component {
@@ -99,42 +100,73 @@ class Spinner extends React.Component {
             <g key={"g" + key} transform={"rotate(" + (pieSize * sliceNumber) + " " + this.state.center.x  + " " + this.state.center.y + ")"}>
                 <path key={"p" + key} d={this.createLinesAlongCurve(-halfSlice, halfSlice, sliceWidth)}
                     fill={this.getColor(sliceNumber, numberOfSlices)} stroke="#000" strokeWidth={1}/>
-                <text key={"t" + key} x={sliceWidth} y={this.state.center.y} text-anchor="end" fontSize="1.15em">{slice}</text>
+                <text key={"t" + key} x={sliceWidth} y={this.state.center.y} textAnchor="end" fontSize="1.15em">{slice}</text>
             </g>
         );
     }
+
+    addRule(id, ...rules) {
+        let styleEl = document.getElementById(id);
+        if (styleEl) {
+            document.head.removeChild(styleEl);
+        }
+        styleEl = document.createElement("style");
+        styleEl.setAttribute("id", id);
+        document.head.appendChild(styleEl);
+        var styleSheet = styleEl.sheet;
+        Object.values(rules).forEach((r,i) => {
+            styleSheet.insertRule(r, i);
+            console.log(r)
+        });
+        console.log(styleSheet);
+    }
+
 
     renderSpinner(spinner, ringNumber, ringCount) {
         let isBackwards = ringNumber % 2 == 0 ? 1 : -1;
         let randomRotation =  Math.round(720 + 360 * Math.random());
         let centerString = " " + this.state.center.x + " " + this.state.center.y;
+        let centerStringPx = " " + Math.round(this.state.center.x) + "px " + Math.round(this.state.center.y) + "px";
         let sliceSize = Math.round(360 / spinner.length);
         let snap = sliceSize - (randomRotation % sliceSize);
         
-        let sequence = `0 ${centerString};`;
-        sequence += `${randomRotation/2 * isBackwards} ${centerString};`;
-        sequence += `${randomRotation * isBackwards} ${centerString};`;
-        sequence += `${(randomRotation + snap) * isBackwards} ${centerString};`;
+        let className = "cssRule" + ringNumber + "_" + this.state.spinCount;
+        this.addRule(className,
+            ` @keyframes ${className} {
+                0% {
+                    transform:rotate(0deg);
+                    transform-origin: ${centerStringPx};
+                } 
+                35% {
+                    transform:rotate(${randomRotation/2 * isBackwards}deg);
+                    transform-origin: ${centerStringPx};
+                } 
+                90% {
+                    transform:rotate(${randomRotation * isBackwards}deg);
+                    transform-origin: ${centerStringPx};
+                }
+                100% {
+                    transform:rotate(${(randomRotation+snap) * isBackwards}deg);
+                    transform-origin: ${centerStringPx};
+                }
+            }`,
+            ` .${className} { 
+                background: red;
+                animation-name: ${className};
+                animation-duration: 4s;
+            }`);
 
         //console.log(`slice = ${sliceSize} des=${randomRotation} snap=${snap}`);
-
-        const animations = {
-            animation: "rotation 8s infinite linear",
-            // attributeName: "rotate",
-            // attributeType: "transform",
-            // keyTimes: "0; 0.4; 0.8; 1",
-            // animationDuration: "4000ms",
-            // values: sequence,
-            // repeatCount: 1
-        };
-
+        
         return (
-            <g key={"ring" + ringNumber + "_" + this.state.spinCount} style={animations} transform={"rotate(" +(randomRotation+snap)*isBackwards + " " + centerString +")"}>
-                {
-                spinner.map((slice,sliceNumber) => {
-                    return this.renderSlice(slice, ringNumber, ringCount, sliceNumber, spinner.length);
-                })}
-            </g>
+            <g key={"g" + ringNumber + "_" + this.state.spinCount} className={className}>
+                <g key={"ring" + ringNumber + "_" + this.state.spinCount} transform={"rotate(" +(randomRotation+snap)*isBackwards + " " + centerString +")"}>
+                    {
+                    spinner.map((slice,sliceNumber) => {
+                        return this.renderSlice(slice, ringNumber, ringCount, sliceNumber, spinner.length);
+                    })}
+                </g>
+           </g>
         );
     }
 
