@@ -1,20 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-const COLORS = ["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#b15928"];
+import Utils from './utils';
 
 class Spinner extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             spinCount: 1,
-            view: {
-                h: 0,
-                w: 0,
-            }, 
-            center: {
-                y: 0,
-                x: 0,
-            },
+            view: { h: 0, w: 0 }, 
             data: []
         }
     }
@@ -24,24 +17,20 @@ class Spinner extends React.Component {
     }
 
     setSize() {
-        const height = window.innerHeight;
-        const width = window.innerWidth;
+        const height = window.innerHeight - 2;
+        const width = window.innerWidth - 2;
         this.setState({ 
-            view: {
-                h: height,
-                w: width
-            },
-            center: {
-                y: height/2,
-                x: 25
-            }
+            view: { h: height, w: width },
         });
     }
 
     componentDidMount() {
         this.setSize();
-        
-        const url = 'spinners/key_n_positions.json';
+        let url = Utils.getQueryParameter('url');
+        if (!url) {
+            url = 'spinners/default.json';
+        }
+        console.log('Loading', url)
         fetch(url, {method: 'GET'}).
         then(res => res.json()).
         then(json => {
@@ -54,6 +43,7 @@ class Spinner extends React.Component {
                 console.log("Error", e);
             }
         }).catch(e => {
+            window.alert(`Unable to read data from ${url} : ${e}`);
             console.log("Error", e);
         })
     }
@@ -68,104 +58,97 @@ class Spinner extends React.Component {
         };
       }
   
-      createLinesAlongCurve(startDeg, endDeg, radius) {
-          const CENTER = this.state.center;
+      createLinesAlongCurve(center, startDeg, endDeg, radius) {
           const deltaDeg = 5;
-          let data = "M " + CENTER.x + " " + CENTER.y + " \n";
+          let data = "M " + center.x + " " + center.y + " \n";
           for(let i = startDeg; i < (endDeg + deltaDeg); i = i + deltaDeg) {
               const deg = Math.min(i, endDeg);
               const p = this.cacluatePointOnCircle(deg, radius);
-              let x = CENTER.x + p.x;
-              let y = CENTER.y + p.y;
+              let x = center.x + p.x;
+              let y = center.y + p.y;
               data += " L " + x + " " + y + " \n";
           }
           return data + " z";
     }
  
-    getColor(i, outOf) {
-        if (COLORS.length == (outOf - 1)) {
-            return COLORS[i % (COLORS.length - 1)];
-        } else {
-            return COLORS[i % COLORS.length];
-        }
-    }
-
-    renderSlice(slice, ringNumber, ringCount, sliceNumber, numberOfSlices) {
-        const pieWidth = this.state.view.w - this.state.center.x * 2;
-        const sliceWidth = pieWidth - (pieWidth / ringCount) * ringNumber;
+    renderSlice(center, radius, slice, ringNumber, ringCount, sliceNumber, numberOfSlices) {
+        const sliceWidth = radius - (radius/ringCount) *  ringNumber;
         const key = "r" + ringNumber + "s" + sliceNumber;
         const pieSize = 360 / (numberOfSlices);
         const halfSlice = pieSize / 2;
         return (
-            <g key={"g" + key} transform={"rotate(" + (pieSize * sliceNumber) + " " + this.state.center.x  + " " + this.state.center.y + ")"}>
-                <path key={"p" + key} d={this.createLinesAlongCurve(-halfSlice, halfSlice, sliceWidth)}
-                    fill={this.getColor(sliceNumber, numberOfSlices)} stroke="#000" strokeWidth={1}/>
-                <text key={"t" + key} x={sliceWidth} y={this.state.center.y} textAnchor="end" fontSize="1.15em">{slice}</text>
+            <g key={"g" + key} transform={"rotate(" + (pieSize * sliceNumber) + " " + center.x  + " " + center.y + ")"}>
+                <path key={"p" + key} d={this.createLinesAlongCurve(center, -halfSlice, halfSlice, sliceWidth)}
+                    fill={Utils.getColor(sliceNumber, numberOfSlices)} stroke="#000" strokeWidth={1}/>
+                <text key={"t" + key} x={center.x + sliceWidth - 25} y={center.y} textAnchor="end" fontSize="1.15em">{slice}</text>
             </g>
         );
     }
 
-    addRule(id, ...rules) {
-        let styleEl = document.getElementById(id);
-        if (styleEl) {
-            document.head.removeChild(styleEl);
-        }
-        styleEl = document.createElement("style");
-        styleEl.setAttribute("id", id);
-        document.head.appendChild(styleEl);
-        var styleSheet = styleEl.sheet;
-        Object.values(rules).forEach((r,i) => {
-            styleSheet.insertRule(r, i);
-            console.log(r)
-        });
-        console.log(styleSheet);
-    }
-
-
-    renderSpinner(spinner, ringNumber, ringCount) {
-        let isBackwards = ringNumber % 2 == 0 ? 1 : -1;
-        let randomRotation =  Math.round(720 + 360 * Math.random());
-        let centerString = " " + this.state.center.x + " " + this.state.center.y;
-        let centerStringPx = " " + Math.round(this.state.center.x) + "px " + Math.round(this.state.center.y) + "px";
-        let sliceSize = Math.round(360 / spinner.length);
-        let snap = sliceSize - (randomRotation % sliceSize);
-        
-        let className = "cssRule" + ringNumber + "_" + this.state.spinCount;
-        this.addRule(className,
-            ` @keyframes ${className} {
-                0% {
-                    transform:rotate(0deg);
-                    transform-origin: ${centerStringPx};
-                } 
-                100% {
-                    transform:rotate(${(randomRotation+snap) * isBackwards}deg);
-                    transform-origin: ${centerStringPx};
-                }
-            }`,
-            ` .${className} { 
-                background: red;
-                animation-name: ${className};
-                animation-duration: 4s;
-            }`);
-
-        //console.log(`slice = ${sliceSize} des=${randomRotation} snap=${snap}`);
-        
-        return (
-            <g key={"g" + ringNumber + "_" + this.state.spinCount} className={className}>
-                <g key={"ring" + ringNumber + "_" + this.state.spinCount} transform={"rotate(" +(randomRotation+snap)*isBackwards + " " + centerString +")"}>
-                    {
-                    spinner.map((slice,sliceNumber) => {
-                        return this.renderSlice(slice, ringNumber, ringCount, sliceNumber, spinner.length);
-                    })}
-                </g>
-           </g>
-        );
-    }
 
     renderSpinners() {
-        return this.state.data.map((spinner, i) => {
-            return this.renderSpinner(spinner, i, this.state.data.length);
+        const ringCount = this.state.data.length;
+        const viewPort = this.state.view;
+        let radius = viewPort.h / 2;
+        let center = { 
+            x: viewPort.w / 2,
+            y: viewPort.h / 2
+        };
+
+        if (viewPort.w < viewPort.h) {
+            radius = viewPort.w - 50;
+            center.x = 25;
+        }
+        console.log(viewPort, radius, center);
+
+        return this.state.data.map((spinner, ringNumber) => {
+            let isBackwards = ringNumber % 2 == 0 ? 1 : -1;
+            let randomRotation =  Math.round(720 + 360 * Math.random());
+            let centerStringPx = " " + Math.round(center.x) + "px " + Math.round(center.y) + "px";
+            let sliceSize = Math.round(360 / spinner.length);
+            let snap = sliceSize - (randomRotation % sliceSize);
+            
+            let className = "cssRule" + ringNumber;
+            Utils.addRule(className,
+                ` @keyframes ${className} {
+                    0% {
+                        transform:rotate(0deg);
+                        transform-origin: ${centerStringPx};
+                    } 
+                    100% {
+                        transform:rotate(${(randomRotation+snap) * isBackwards}deg);
+                        transform-origin: ${centerStringPx};
+                    }
+                }`,
+                ` .${className} { 
+                    background: red;
+                    animation-name: ${className};
+                    animation-duration: 4s;
+                    animation-fill-mode: forwards;
+                }`);
+
+            
+            return (
+                <g key={"g" + ringNumber + "_" + this.state.spinCount} className={className}>
+                    <g key={"ring" + ringNumber + "_" + this.state.spinCount}>
+                        {
+                        spinner.map((slice,sliceNumber) => {
+                            return this.renderSlice(center, radius, slice, ringNumber, ringCount, sliceNumber, spinner.length);
+                        })}
+                    </g>
+               </g>
+            );
         });
+    }
+
+    render() {
+        return (
+            <div onMouseUp={(e) => this.refresh()}>
+                <svg key={"s" + this.state.spinCount} width={this.state.view.w} height={this.state.view.h}>
+                    {this.renderSpinners()}
+                </svg>
+            </div>
+        );
     }
 
     refresh() {
@@ -174,18 +157,6 @@ class Spinner extends React.Component {
         this.setState({
             spinCount: spinCount
         });
-        
-        //console.log(spinCount);
-    }
-
-    render() {
-        return (
-            <div>
-                <svg key={"s" + this.state.spinCount} width={this.state.view.w} height={this.state.view.h} onMouseUp={(e) => this.refresh()}>
-                    {this.renderSpinners()}
-                </svg>
-            </div>
-        );
     }
 }
 
