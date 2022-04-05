@@ -137,14 +137,6 @@ class Spinner extends React.Component {
                     transform:rotate(0deg);
                     transform-origin: ${centerStringPx};
                 } 
-                35% {
-                    transform:rotate(${randomRotation/2 * isBackwards}deg);
-                    transform-origin: ${centerStringPx};
-                } 
-                90% {
-                    transform:rotate(${randomRotation * isBackwards}deg);
-                    transform-origin: ${centerStringPx};
-                }
                 100% {
                     transform:rotate(${(randomRotation+snap) * isBackwards}deg);
                     transform-origin: ${centerStringPx};
