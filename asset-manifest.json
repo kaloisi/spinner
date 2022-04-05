@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.js": "/spinner/static/js/main.596ed8a3.chunk.js",
-    "main.js.map": "/spinner/static/js/main.596ed8a3.chunk.js.map",
+    "main.js": "/spinner/static/js/main.f3087c59.chunk.js",
+    "main.js.map": "/spinner/static/js/main.f3087c59.chunk.js.map",
     "runtime-main.js": "/spinner/static/js/runtime-main.b87e7426.js",
     "runtime-main.js.map": "/spinner/static/js/runtime-main.b87e7426.js.map",
-    "static/js/2.2bdd87f7.chunk.js": "/spinner/static/js/2.2bdd87f7.chunk.js",
-    "static/js/2.2bdd87f7.chunk.js.map": "/spinner/static/js/2.2bdd87f7.chunk.js.map",
+    "static/js/2.81b6d851.chunk.js": "/spinner/static/js/2.81b6d851.chunk.js",
+    "static/js/2.81b6d851.chunk.js.map": "/spinner/static/js/2.81b6d851.chunk.js.map",
     "index.html": "/spinner/index.html",
-    "static/js/2.2bdd87f7.chunk.js.LICENSE.txt": "/spinner/static/js/2.2bdd87f7.chunk.js.LICENSE.txt"
+    "static/js/2.81b6d851.chunk.js.LICENSE.txt": "/spinner/static/js/2.81b6d851.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.b87e7426.js",
-    "static/js/2.2bdd87f7.chunk.js",
-    "static/js/main.596ed8a3.chunk.js"
+    "static/js/2.81b6d851.chunk.js",
+    "static/js/main.f3087c59.chunk.js"
   ]
 }
