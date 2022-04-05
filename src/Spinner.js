@@ -40,7 +40,7 @@ class Spinner extends React.Component {
     componentDidMount() {
         this.setSize();
         
-        const url = 'https://raw.githubusercontent.com/kaloisi/spinner/main/spinners/key_n_positions.json';
+        const url = 'spinners/key_n_positions.json';
         fetch(url, {method: 'GET'}).
         then(res => res.json()).
         then(json => {
@@ -99,7 +99,7 @@ class Spinner extends React.Component {
             <g key={"g" + key} transform={"rotate(" + (pieSize * sliceNumber) + " " + this.state.center.x  + " " + this.state.center.y + ")"}>
                 <path key={"p" + key} d={this.createLinesAlongCurve(-halfSlice, halfSlice, sliceWidth)}
                     fill={this.getColor(sliceNumber, numberOfSlices)} stroke="#000" strokeWidth={1}/>
-                <text key={"t" + key} x={sliceWidth - 25} y={this.state.center.y} fontSize="1.15em">{slice}</text>
+                <text key={"t" + key} x={sliceWidth} y={this.state.center.y} text-anchor="end" fontSize="1.15em">{slice}</text>
             </g>
         );
     }
@@ -118,17 +118,22 @@ class Spinner extends React.Component {
 
         //console.log(`slice = ${sliceSize} des=${randomRotation} snap=${snap}`);
 
+        const animations = {
+            animation: "rotation 8s infinite linear",
+            // attributeName: "rotate",
+            // attributeType: "transform",
+            // keyTimes: "0; 0.4; 0.8; 1",
+            // animationDuration: "4000ms",
+            // values: sequence,
+            // repeatCount: 1
+        };
+
         return (
-            <g key={"ring" + ringNumber + "_" + this.state.spinCount} transform={"rotate(" +(randomRotation+snap)*isBackwards + " " + centerString +")"}>
+            <g key={"ring" + ringNumber + "_" + this.state.spinCount} style={animations} transform={"rotate(" +(randomRotation+snap)*isBackwards + " " + centerString +")"}>
                 {
                 spinner.map((slice,sliceNumber) => {
                     return this.renderSlice(slice, ringNumber, ringCount, sliceNumber, spinner.length);
                 })}
-                <animateTransform id={"animate" + ringNumber + "_" + this.state.spinCount}
-                        key={this.state.spinCount} 
-                        attributeType="xml" attributeName="transform" type="rotate" dur="1s" repeatCount="1"
-                        keyTimes="0; 0.4; 0.8 ;1"
-                        values={sequence} />
             </g>
         );
     }
