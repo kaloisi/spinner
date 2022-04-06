@@ -1,0 +1,15 @@
+[
+    ["C", "G", "D", "A", "E", "B", "Cb", "F#", "Gb", "Db", "C#", "Ab" , "Eb", "Bb", "F"],
+    [
+        "minor 2nd",
+        "major 2nd",
+        "minor 3rd",
+        "major 3rd",
+        "perfect 4th",
+        "perfect 5th",
+        "minor 6th",
+        "major 6th",
+        "minor 7th",
+        "major 7th"
+    ]
+ ]

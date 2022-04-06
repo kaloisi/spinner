@@ -24,7 +24,6 @@ module.exports = {
             let split = search.split("&");
             for(let i = 0; i < split.length; i++) {
                 let nv = split[i].split("=");
-                console.log(nv);
                 if (nv && nv.length == 2 && nv[0] === name) {
                     return nv[1];
                 }

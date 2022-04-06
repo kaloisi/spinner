@@ -28,23 +28,29 @@ class Spinner extends React.Component {
         this.setSize();
         let url = Utils.getQueryParameter('url');
         if (!url) {
-            url = 'spinners/default.json';
+            let path = document.location.pathname;
+            if (!path.endsWith("/")) {
+                path += "/";
+            }
+            url = path + 'spinners/default.json';
         }
         console.log('Loading', url)
         fetch(url, {method: 'GET'}).
-        then(res => res.json()).
-        then(json => {
+        then(res => res.text()).
+        then(body => {
             try {
+                console.log("Content", body);
+                const json = JSON.parse(body);
                 console.log("Loaded", json);
                 this.setState({
                     data: json
                 });
             } catch (e) {
-                console.log("Error", e);
+                console.error("Error", e);
             }
         }).catch(e => {
             window.alert(`Unable to read data from ${url} : ${e}`);
-            console.log("Error", e);
+            console.error("Error", e);
         })
     }
 
