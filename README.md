@@ -24,7 +24,7 @@ Once, you've selected or created your file you just add the url parameter to the
 Like this : https://kaloisi.github.io/spinner/?url=spinners/scale_positions_keys.json
 
 
-# Was that to complicated?
+# Too complicated?
 
 Feel free to reach out. I'm also happy to create the spinner file for your and post it with me.
 
